@@ -1,0 +1,3 @@
+/c/users/paul/Documents/MessageFragmentationLibrary/build/CMakeFiles/MessageFragmentationLibrary.dir
+/c/users/paul/Documents/MessageFragmentationLibrary/build/CMakeFiles/edit_cache.dir
+/c/users/paul/Documents/MessageFragmentationLibrary/build/CMakeFiles/rebuild_cache.dir

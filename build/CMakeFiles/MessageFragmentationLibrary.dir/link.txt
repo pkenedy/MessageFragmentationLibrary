@@ -1,0 +1,1 @@
+/mingw64/bin/c++.exe -Wl,--enable-auto-import CMakeFiles/MessageFragmentationLibrary.dir/main.cpp.o CMakeFiles/MessageFragmentationLibrary.dir/MessageFragmenter.cpp.o -o MessageFragmentationLibrary.exe -Wl,--out-implib,libMessageFragmentationLibrary.dll.a -Wl,--major-image-version,0,--minor-image-version,0
