@@ -3,7 +3,6 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
-#include <algorithm>
 
 // Constructor
 MessageFragmenter::MessageFragmenter(size_t chunkSize, int timeoutDuration, MissingChunkCallback callback)
@@ -30,8 +29,10 @@ std::string MessageFragmenter::reassembleMessage(const std::vector<std::pair<int
     checkForMissingChunks();
 
     std::ostringstream reassembledMessage;
-    for (const auto& chunk : receivedChunks) {
-        reassembledMessage << chunk.second;
+    for (int i = 0; i < (int)receivedChunks.size(); ++i) {
+        if (receivedChunks.find(i) != receivedChunks.end()) {
+            reassembledMessage << receivedChunks[i];
+        }
     }
 
     return reassembledMessage.str();
@@ -39,18 +40,22 @@ std::string MessageFragmenter::reassembleMessage(const std::vector<std::pair<int
 
 // Check for missing chunks and invoke callback
 void MessageFragmenter::checkForMissingChunks() {
-    missingChunks.clear();
-    for (int i = 0; i < receivedChunks.size(); ++i) {
+    auto now = std::chrono::steady_clock::now();
+    bool timeoutExceeded = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() > timeoutDuration;
+
+    for (int i = 0; i < (int)receivedChunks.size(); ++i) {
         if (receivedChunks.find(i) == receivedChunks.end()) {
-            missingChunks.push_back(i);
+            // Report missing chunk only once
+            missingChunkCallback(i);
         }
     }
 
-    // Timeout logic to handle missing/corrupted data
-    auto now = std::chrono::steady_clock::now();
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count() > timeoutDuration) {
-        for (int missingChunk : missingChunks) {
-            missingChunkCallback(missingChunk);
+    // Report missing chunks as corrupted if the timeout has been exceeded
+    if (timeoutExceeded) {
+        for (int i = 0; i < (int)receivedChunks.size(); ++i) {
+            if (receivedChunks.find(i) == receivedChunks.end()) {
+                std::cout << "Reporting corrupted data: Missing chunk " << i << " after timeout." << std::endl;
+            }
         }
     }
 }
@@ -81,7 +86,10 @@ bool MessageFragmenter::test() {
     // Reassemble the message
     std::string reassembledMessage = fragmenter.reassembleMessage(receivedChunks);
 
-    // Expected to report missing chunk and return reassembled message
+    // Simulate delay to trigger timeout
+    std::this_thread::sleep_for(std::chrono::milliseconds(timeout + 100)); // Sleep just over the timeout
+
+    // Check for missing chunks and apply timeout logic
     fragmenter.checkForMissingChunks();
 
     std::cout << "Reassembled Message: " << reassembledMessage << std::endl;

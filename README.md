@@ -54,3 +54,23 @@ break MessageFragmenter::fragmentMessage
 break MessageFragmenter::reassembleMessage
 break MessageFragmenter::checkForMissingChunks
 break MessageFragmenter::test
+
+## Run the program
+ run
+
+
+
+  TO Callback for missing chunks & Report corrupted data after a timeout threshold   
+ 
+ 
+  ##Compile the Code:
+
+        bash
+
+g++ -g -o main main.cpp MessageFragmenter.cpp
+
+  ##Run the Executable:
+
+bash
+
+    ./main
